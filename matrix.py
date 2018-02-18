@@ -40,6 +40,21 @@ class Matrix:
 				self.table[i][j] = math.floor(random.random()*5);
 
 	@staticmethod
+	def transpose(a):
+		t = [];
+		for i in range(0, a.cols):
+			temp = [];
+			for j in range(0, a.rows):
+				temp.append(0);
+			t.append(temp);
+
+		for i in range(0, len(a.table)):
+			for j in range(0, len(a.table[i])):
+				t[j][i] = a.table[i][j];
+
+		a.table = t;
+
+	@staticmethod
 	def mult(a, b):
 		if(isinstance(a, Matrix) and isinstance(b, Matrix)):
 			if a.cols != b.rows:
