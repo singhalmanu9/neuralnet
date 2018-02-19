@@ -37,7 +37,15 @@ class Matrix:
 	def randomize(self):
 		for i in range(0, len(self.table)):
 			for j in range(0, len(self.table[i])):
-				self.table[i][j] = math.floor(random.random()*5);
+				self.table[i][j] = random.random()*2 - 1;
+
+	@staticmethod
+	def fromArray(arr):
+		res = Matrix(len(arr), 1);
+		for i in range(0, len(arr)):
+			res.table[i][0] = arr[i];
+
+		return res;
 
 	@staticmethod
 	def transpose(a):
@@ -53,6 +61,17 @@ class Matrix:
 				t[j][i] = a.table[i][j];
 
 		a.table = t;
+
+	@staticmethod
+	def add(a, b):
+		if a.cols != b.cols or a.rows != b.rows:
+			print('Matrix dimensions are not compatible');
+		else:
+			res = Matrix(a.rows, a.cols);
+			for i in range(0, len(res.table)):
+				for j in range(0, len(res.table[i])):
+					res.table[i][j] = a.table[i][j]+b.table[i][j];
+			return res;
 
 	@staticmethod
 	def mult(a, b):
