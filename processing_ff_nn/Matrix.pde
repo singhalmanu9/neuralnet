@@ -19,12 +19,12 @@ class Matrix {
     print("[");
     for (int i = 0; i < rows-1; i ++) {
       for (int j = 0; j < cols-1; j++) {
-        print(table[i][j] + ",");
+        print(table[i][j] + ", ");
       }
       println(table[i][cols-1]);
     }
     for (int j = 0; j < cols-1; j++) {
-      print(table[rows-1][j] + ",");
+      print(table[rows-1][j] + ", ");
     }
     print(table[rows-1][cols-1]);
     println("]");
@@ -37,6 +37,19 @@ class Matrix {
       for (int i = 0; i < rows; i ++) {
         for (int j = 0; j < cols; j ++) {
           result.table[i][j] = this.table[i][j] + other.table[i][j];
+        }
+      }
+    }
+    return result;
+  }
+  
+  Matrix sub(Matrix other) {
+    Matrix result = null;
+    if (this.rows == other.rows && this.cols == other.cols) {
+      result = new Matrix(rows, cols);
+      for (int i = 0; i < rows; i ++) {
+        for (int j = 0; j < cols; j ++) {
+          result.table[i][j] = this.table[i][j] - other.table[i][j];
         }
       }
     }
@@ -63,17 +76,38 @@ class Matrix {
   void randomize() {
     for (int i = 0; i < rows; i ++) {
       for (int j = 0; j < cols; j ++) {
-        table[i][j] = random(1);
+        table[i][j] = random(-1, 1);
       }
     }
   }
   
-  void transpose() {
-    float[][] table2 = new float[cols][rows];
+  Matrix sclmult(float scl) {
+    Matrix result = new Matrix(rows, cols);
+    for (int i = 0; i < rows; i ++) {
+      for (int j = 0; j < cols; j++) 
+        result.table[i][j] = scl * this.table[i][j];
+    }
+    return result;
+  }
+  
+  Matrix elemmult(Matrix other) {
+    Matrix result = null;
+    if (rows == other.rows && cols == other.cols) {
+      result = new Matrix(rows, cols);
+      for (int i = 0; i < rows; i ++) {
+        for (int j = 0; j < cols; j++) 
+          result.table[i][j] = this.table[i][j] * other.table[i][j];
+      }
+    }
+    return result;
+  }
+  
+  Matrix transpose() {
+    Matrix t = new Matrix(cols, rows);
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j ++)
-        table2[j][i] = table[i][j];
+        t.table[j][i] = table[i][j];
     }
-    table = table2;
+    return t;
   }
 }
