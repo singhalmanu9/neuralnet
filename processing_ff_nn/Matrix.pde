@@ -1,9 +1,9 @@
 class Matrix {
-  
+
   float[][] table;
   int rows;
   int cols;
-  
+
   Matrix(int rows, int cols) {
     table = new float[rows][cols];
     this.rows = rows;
@@ -14,7 +14,7 @@ class Matrix {
       }
     }
   }
-  
+
   void printMatrix() {
     print("[");
     for (int i = 0; i < rows-1; i ++) {
@@ -29,7 +29,7 @@ class Matrix {
     print(table[rows-1][cols-1]);
     println("]");
   }
-  
+
   Matrix add(Matrix other) {
     Matrix result = null;
     if (this.rows == other.rows && this.cols == other.cols) {
@@ -42,7 +42,7 @@ class Matrix {
     }
     return result;
   }
-  
+
   Matrix sub(Matrix other) {
     Matrix result = null;
     if (this.rows == other.rows && this.cols == other.cols) {
@@ -55,7 +55,7 @@ class Matrix {
     }
     return result;
   }
-  
+
   Matrix mult(Matrix other) {
     Matrix result = null;
     if (this.cols == other.rows) {
@@ -72,7 +72,7 @@ class Matrix {
     }
     return result;
   }
-  
+
   void randomize() {
     for (int i = 0; i < rows; i ++) {
       for (int j = 0; j < cols; j ++) {
@@ -80,7 +80,7 @@ class Matrix {
       }
     }
   }
-  
+
   Matrix sclmult(float scl) {
     Matrix result = new Matrix(rows, cols);
     for (int i = 0; i < rows; i ++) {
@@ -89,7 +89,7 @@ class Matrix {
     }
     return result;
   }
-  
+
   Matrix elemmult(Matrix other) {
     Matrix result = null;
     if (rows == other.rows && cols == other.cols) {
@@ -101,7 +101,7 @@ class Matrix {
     }
     return result;
   }
-  
+
   Matrix transpose() {
     Matrix t = new Matrix(cols, rows);
     for (int i = 0; i < rows; i++) {
@@ -109,5 +109,40 @@ class Matrix {
         t.table[j][i] = table[i][j];
     }
     return t;
+  }
+
+  Matrix clone() {
+    Matrix result = new Matrix(rows, cols);
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j ++)
+        result.table[i][j] = table[i][j];
+    }
+    return result;
+  }
+
+  void mutate(float mutRate) {
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j ++)
+        if (random(1) < mutRate)
+          table[i][j] = table[i][j] + randomGaussian()*.3;
+    }
+  }
+
+  Matrix fromArray(float[][] array) {
+    int rows = array.length;
+    int cols = array[rows-1].length;
+    Matrix result = new Matrix(rows, cols);
+    result.table = copyArray(array);
+    return result;
+  }
+
+  float[][] copyArray(float[][] array) {
+    float[][] result = new float[array.length][array[0].length];
+    for (int i = 0; i < result.length; i ++ ) {
+      for (int j = 0; j < result[0].length; j++) {
+        result[i][j] = array[i][j];
+      }
+    }
+    return result;
   }
 }

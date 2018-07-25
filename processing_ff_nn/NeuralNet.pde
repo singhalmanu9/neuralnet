@@ -60,4 +60,24 @@ class NeuralNet {
       }
     }
   }
+  
+  NeuralNet clone() {
+    NeuralNet out = new NeuralNet(input_to_hidden.cols, input_to_hidden.rows, hidden_to_output.rows);
+    out.input_to_hidden = input_to_hidden.clone();
+    out.hidden_to_output = hidden_to_output.clone();
+    out.bias_hidden = bias_hidden.clone();
+    out.bias_output = bias_output.clone();
+    out.lr = lr;
+    return out;
+  }
+  
+  void mutate() {
+    float mutRate = .1;
+    input_to_hidden.mutate(mutRate);
+    hidden_to_output.mutate(mutRate);
+    bias_hidden.mutate(mutRate);
+    bias_output.mutate(mutRate);
+    if (random(mutRate) < mutRate)
+      lr = lr + randomGaussian() * .05;
+  }
 }
