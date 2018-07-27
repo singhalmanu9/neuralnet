@@ -2,12 +2,12 @@ class Node {
 
   int id;
   boolean ready;
-  float curr;
+  float curr = 0;
+  float bias = random(-1, 1);
 
   Node(int id) {
     this.id = id;
     ready = false;
-    curr = random(-1, 1);
   }
 
   void getReady(HashMap<Integer, ArrayList<Gene>> genes) {
@@ -22,14 +22,16 @@ class Node {
         ready = true;
         for (Gene g : leadIns)
           curr += g.active ? g.inNode.curr*g.weight : 0;
+        curr += bias;
         curr = sigmoid(curr);
       } else {
       }
     }
   }
-
-  float getValue() {
-    return (ready) ? curr : 0;
+  
+  void reset() {
+    ready = false;
+    curr = 0;
   }
 }
 
@@ -38,7 +40,7 @@ class InputNode extends Node {
 
   InputNode(int id) {
     super(id);
-    curr = 0;
+    bias = 0;
   }
 
   void getReady(float input) {
