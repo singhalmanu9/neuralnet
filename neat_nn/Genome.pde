@@ -1,12 +1,18 @@
-class Genome { //<>// //<>//
+class Genome {  //<>// //<>//
 
   // list of all genes, indexed by outnumber (node data flows to)
-  HashMap<Integer, ArrayList<Gene>> genes = new HashMap();
+  HashMap<Integer, ArrayList<Gene>> genes = new HashMap<Integer, ArrayList<Gene>>(10);
 
-  ArrayList<Gene> genesInn = new ArrayList();
+  ArrayList<Gene> genesInn = new ArrayList<Gene>(10);
 
   // list of all nodes (increasing id number)
-  ArrayList<Node> nodes = new ArrayList();
+  ArrayList<Node> nodes = new ArrayList<Node>(10);
+
+  float fitness;
+  int species;
+
+  Genome() {
+  }
 
   Genome(int input_nodes, int output_nodes) {
 
@@ -27,7 +33,10 @@ class Genome { //<>// //<>//
       for (int j = 0; j < output_nodes; j ++) {
         Gene g = new Gene(nodes.get(i), nodes.get(input_nodes + j), innCounter++);
         genes.get(input_nodes + j).add(g);
-        genesInn.add(g);
+        while (genesInn.size() < g.innNumber) {
+          genesInn.add(null);
+        }
+        genesInn.add(g.innNumber, g);
       }
     }
   }
@@ -48,8 +57,8 @@ class Genome { //<>// //<>//
     return found;
   }
 
-  Gene[] addGene() {
-    Node node1 = nodes.get((int) random(nodes.size())); //<>//
+  void addGene() {
+    Node node1 = nodes.get((int) random(nodes.size()));
     Node node2 = nodes.get((int) random(nodes.size()));
 
     int counter = 0;
@@ -62,28 +71,25 @@ class Genome { //<>// //<>//
     if (counter < nodes.size()*nodes.size()) {
       Gene g = new Gene(node1, node2, innCounter ++);
       genes.get(node2.id).add(g);
-      genesInn.add(g);
+      while (genesInn.size() < g.innNumber) {
+        genesInn.add(null);
+      }      
+      genesInn.add(g.innNumber, g);
       println("added gene between " + node1.id + ", " + node2.id);
-      Gene[] retGenes = {g};
-      return retGenes;
     } else {
       println("adding gene failed!");
-      return null;
     }
   }
 
-  Gene[] addNode() {
+  void addNode() {
     Gene g = null;
     while (g == null) {
-      Node node1 = nodes.get((int) random(nodes.size()));
-      Node node2 = nodes.get((int) random(nodes.size()));
-
-      for (Gene gene : genes.get(node2.id)) {
-        if (gene.inNode.id == node1.id)
-          g = gene;
-      }
+      int rand = (int) random(genesInn.size());
+      g = genesInn.get(rand);
     }
 
+
+    println("added new node between ", g.inNode.id, g.outNode.id);
     g.active = false;
     Node n = new Node(nodes.size());
     nodes.add(n);
@@ -91,41 +97,53 @@ class Genome { //<>// //<>//
     Gene g1 = new Gene(g.inNode, n, innCounter ++);
     Gene g2 = new Gene(n, g.outNode, innCounter ++);
     genes.get(g1.outNode.id).add(g1);
-    genesInn.add(g1);
+    while (genesInn.size() < g1.innNumber) {
+      genesInn.add(null);
+    }
+    genesInn.add(g1.innNumber, g1);
     genes.get(g2.outNode.id).add(g2);
-    genesInn.add(g2);
-    
-    Gene[] retGenes = {g1, g2};
-    return retGenes;
+    while (genesInn.size() < g2.innNumber) {
+      genesInn.add(null);
+    }
+    genesInn.add(g2.innNumber, g2);
   }
 
-  Gene[] mutate() {
+  void mutate() {
     float rand = random(1);
     // mutate weights?
     if (rand < .8) {
       for (Gene g : genesInn) {
-        // mutate indiviual genes
-        if (random(1) < .9) {
-          g.weight += randomGaussian()*.5;
-        } else {
-          g.weight = random(-1, 1);
+        if (g != null) {
+          // mutate indiviual genes
+          if (random(1) < .9) {
+            g.weight += randomGaussian()*.5;
+          } else {
+            g.weight = random(-1, 1);
+          }
         }
       }
-      return null;
     } else if (rand <.85) {
-      return addGene();
+      addGene();
     } else if (rand < .88) {
-      return addNode();
-    } else {
-      return null;
+      addNode();
     }
   }
 
-  int numGenes() {
-    int total = 0;
-    for (int i : genes.keySet())
-      total += genes.get(i).size();
-    return total;
+  Genome crossOver(Genome g1, Genome g2) {
+    Genome ret = g1.clone();
+    // will implement later
+    return ret;
+  }
+
+  void calculateFitness(ArrayList<Float> inputs, ArrayList<Float> targets) {
+    // implement for specific purpose
+    ArrayList<Float> guess = feedforward(inputs);
+
+    float errTot = 0;
+    for (int i = 0; i < guess.size(); i ++) {
+      errTot += pow(guess.get(i)-targets.get(i), 2);
+    }
+    fitness = 1/errTot;
   }
 
   ArrayList<Float> feedforward(ArrayList<Float> inputs) {
@@ -176,6 +194,43 @@ class Genome { //<>// //<>//
         return false;
     }
     return true;
+  }
+
+  Genome clone() {
+    Genome ret = new Genome();
+
+    // clone nodes
+    for (Node n : nodes) {
+      ret.nodes.add(n.clone());
+    }
+
+    // clone hashmap
+    for (Integer i : genes.keySet()) {
+      ArrayList<Gene> al = genes.get(i);
+      ArrayList<Gene> newGenes = new ArrayList();
+      for (Gene g : al) {
+        Gene newGene = g.clone();
+        newGene.inNode = ret.nodes.get(newGene.inNode.id);
+        newGene.outNode = ret.nodes.get(newGene.outNode.id);
+        newGenes.add(newGene);
+      }
+      ret.genes.put(i, newGenes);
+    }
+
+    // clone inn AL
+    for (Gene g : genesInn) {
+      if (g != null) {
+        Gene newGene = g.clone();
+        newGene.inNode = ret.nodes.get(newGene.inNode.id);
+        newGene.outNode = ret.nodes.get(newGene.outNode.id);
+        while (ret.genesInn.size() < newGene.innNumber) {
+          ret.genesInn.add(null);
+        }
+        ret.genesInn.add(newGene.innNumber, newGene);
+      }
+    }
+
+    return ret;
   }
 
   void show() {

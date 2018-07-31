@@ -11,6 +11,14 @@ class Gene {
     this.outNode = outNode;
     this.innNumber = innNumber;
     active = true;
-    weight = random(-1, 1);
+    weight = random(-5, 5);
+    mutations.add(this);
+  }
+  
+  Gene clone() {
+    Gene g =  new Gene(inNode.clone(), outNode.clone(), innNumber);
+    g.active = active;
+    g.weight = weight;
+    return g;
   }
 }

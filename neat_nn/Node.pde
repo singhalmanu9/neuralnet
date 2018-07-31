@@ -33,6 +33,14 @@ class Node {
     ready = false;
     curr = 0;
   }
+  
+  Node clone() {
+    Node n = new Node(id);
+    n.ready = ready;
+    n.curr = curr;
+    n.bias = bias;
+    return n;
+  }
 }
 
 // input and output extensions of Node
@@ -47,11 +55,27 @@ class InputNode extends Node {
     curr = input;
     ready = true;
   }
+  
+  Node clone() {
+    Node n = new InputNode(id);
+    n.ready = ready;
+    n.curr = curr;
+    n.bias = bias;
+    return n;
+  }
 }
 
 class OutputNode extends Node {
 
   OutputNode(int id) {
     super(id);
+  }
+  
+  Node clone() {
+    Node n = new OutputNode(id);
+    n.ready = ready;
+    n.curr = curr;
+    n.bias = bias;
+    return n;
   }
 }
